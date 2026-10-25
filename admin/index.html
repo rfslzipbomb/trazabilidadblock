@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLOCKCHAIN | ACEITE DE GIRASOL</title>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Manrope:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-soft: #f9f9f9;
+  --line: #e0e0e0;
+  --text: #4a4a4a;
+  --text-soft: #666666;
+  --blue: #004d98;
+  --blue-strong: #003366;
+  --red: #e3000f;
+  --red-strong: #b3000b;
+  --success: #1fa76d;
+  --success-soft: #edfdf6;
+  --warning: #f59e0b;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100vh;
+  height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Manrope', Arial, sans-serif;
+  font-weight: 400;
+  display: flex;
+  overflow: hidden;
+}
+
+h1, h2, h3 {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  color: var(--blue);
+  letter-spacing: 0.5px;
+  margin-top: 0;
+}
+
+/* MENU LATERAL */
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  height: 100vh;
+  background: #ffffff;
+  border-right: 2px solid var(--line);
+  padding: 26px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-menu-toggle {
+  display: none;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sidebar-header .brand {
+  flex: 1;
+}
+
+.logout-icon {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--panel-soft);
+  color: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.logout-icon:hover {
+  background: #f0f5fa;
+  border-color: var(--blue);
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.sidebar p {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.menu button {
+  width: 100%;
+  padding: 13px 12px;
+  border-radius: 0;
+  border: none;
+  border-left: 4px solid transparent;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.2s ease;
+}
+
+.menu button:hover {
+  background: #f0f5fa;
+  color: var(--blue);
+}
+
+.menu button.active {
+  background: #f0f5fa;
+  color: var(--blue);
+  border-left: 4px solid var(--red);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* MAIN CONTENT */
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 30px 28px 36px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.topbar {
+  background: var(--blue);
+  color: white;
+  margin: -30px -28px 30px -28px;
+  padding: 30px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 4px solid var(--red);
+  flex-shrink: 0;
+}
+
+/* EFECTO DE BOTELLA Y ACEITE (REEMPLAZO) */
+.pouring-container {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 12vh;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.03));
+}
+
+.pouring-bottle {
+  width: 170px;
+  position: absolute;
+  top: -30px;
+  transform: rotate(160deg);
+  z-index: 3;
+  mix-blend-mode: multiply;
+  animation: floatBottle 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 -10px 15px rgba(0,0,0,0.1));
+}
+
+@keyframes floatBottle {
+  0%, 100% { transform: rotate(160deg) translateY(0px); }
+  50% { transform: rotate(160deg) translateY(-12px); }
+}
+
+.oil-thread {
+  position: absolute;
+  top: 293px;
+  left: calc(50% + 54px);
+  width: 7px;
+  height: calc(100vh - 413px);
+  background: linear-gradient(180deg, rgba(255,200,0,0) 0%, rgba(255,200,0,0.9) 10%, rgba(230,140,0,0.95) 90%, rgba(230,140,0,0) 100%);
+  border-radius: 4px;
+  filter: blur(1px);
+  box-shadow: 0 0 12px rgba(255, 180, 0, 0.7);
+  z-index: 2;
+  transform-origin: top;
+  animation: threadFlow 0.1s linear infinite;
+}
+
+@keyframes threadFlow {
+  0% { transform: scaleX(1); opacity: 0.95; }
+  50% { transform: scaleX(0.9); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0.95; }
+}
+
+.puddle {
+  position: absolute;
+  bottom: 12vh;
+  left: calc(50% - 23px);
+  width: 160px;
+  height: 25px;
+  background: radial-gradient(ellipse at center, rgba(255,200,0,0.9) 0%, rgba(230,140,0,0.7) 40%, rgba(230,140,0,0) 70%);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.splash-drop {
+  position: absolute;
+  bottom: 13vh;
+  width: 5px;
+  height: 5px;
+  background: #ffcc00;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ffb300;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.topbar h1 {
+  color: white;
+  margin-bottom: 5px;
+  font-size: clamp(1.8rem, 2.5vw, 2.5rem);
+}
+
+.topbar .subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  margin: 0;
+}
+
+.eyebrow {
+  font-family: 'Oswald', sans-serif;
+  color: #ffffff;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--red);
+  display: inline-block;
+  padding-bottom: 2px;
+  margin-bottom: 12px;
+}
+
+.status span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  margin-left: 5px;
+}
+
+.dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.section {
+  display: none;
+  position: relative;
+  z-index: 1;
+}
+.section.active { display: block; }
+
+.card {
+  background: var(--panel-soft);
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+.card h2, .section-title h2 {
+  border-bottom: 3px solid var(--blue);
+  display: inline-block;
+  padding-bottom: 4px;
+  margin-bottom: 15px;
+  font-size: 1.7rem;
+}
+
+.card p {
+  color: var(--text-soft);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-soft);
+  text-transform: uppercase;
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  border-radius: var(--radius);
+  padding: 13px 14px;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 15px;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue);
+}
+
+textarea { min-height: 92px; resize: vertical; }
+
+.btn {
+  background: var(--red);
+  color: #ffffff;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn:hover { background: var(--red-strong); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-gray { background: transparent; color: var(--blue); border: 2px solid var(--blue); }
+.btn-green { background: var(--blue); }
+.btn-green:hover { background: var(--blue-strong); }
+
+hr { border: 0; border-top: 1px solid var(--line); margin: 22px 0; }
+
+.estado {
+  display: none;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 700;
+}
+.exito { display: block; background: var(--success-soft); border: 1px solid #cbf1df; color: #0e7a52; }
+.error { display: block; background: #fff1f3; border: 1px solid #ffd5db; color: var(--red-strong); }
+.info { display: block; background: #eef5ff; border: 1px solid #dfeaff; color: var(--blue-strong); }
+
+.lote-info, .metric, .evento, .lote-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  margin-bottom: 14px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 18px 0 20px;
+}
+
+.metric-label {
+  color: var(--text-soft);
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.metric-value {
+  color: var(--blue);
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: 'Oswald', sans-serif;
+}
+
+.evento { border-left: 4px solid var(--red); }
+.evento strong { color: var(--blue); }
+
+@media (max-width: 980px) {
+  .pouring-container { width: 180px; }
+  .pouring-bottle { width: 120px; }
+}
+
+@media (max-width: 760px) {
+  html, body {
+    display: block;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 18px 16px;
+    gap: 10px;
+  }
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--panel-soft);
+    color: var(--blue);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    flex: 1;
+  }
+  .mobile-menu-toggle::after {
+    content: '▾';
+    font-size: 18px;
+    line-height: 1;
+  }
+  .sidebar:not(.open) .menu {
+    display: none;
+  }
+  .sidebar.open .menu {
+    display: flex;
+  }
+  .sidebar.open .mobile-menu-toggle::after {
+    content: '▴';
+  }
+  .menu {
+    gap: 6px;
+  }
+  .menu button {
+    font-size: 14px;
+    padding: 12px 10px;
+  }
+  .sidebar-footer {
+    display: none;
+  }
+  .logout-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .menu + .logout-icon {
+    display: inline-flex;
+  }
+  .main {
+    display: block;
+    padding: 20px 16px 28px;
+    overflow-x: hidden;
+  }
+  .topbar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: -20px -16px 20px -16px;
+    padding: 20px 16px;
+  }
+  .topbar h1 {
+    font-size: 1.7rem;
+  }
+  .status {
+    align-self: stretch;
+  }
+  .status span {
+    width: 100%;
+    justify-content: center;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .card {
+    padding: 18px 16px;
+  }
+  .section-title {
+    margin-bottom: 12px;
+  }
+  .card h2, .section-title h2 {
+    font-size: 1.4rem;
+  }
+  .btn {
+    width: 100%;
+    font-size: 14px;
+  }
+  .pouring-container {
+    display: none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<aside class="sidebar open" id="adminSidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <h2>LA FAVORITA</h2>
+      <p>Panel Administrativo</p>
+    </div>
+    <button class="logout-icon" type="button" onclick="cerrarSesion()" aria-label="Cerrar sesión">⎋</button>
+  </div>
+  <button class="mobile-menu-toggle" type="button" onclick="toggleSidebarMenu()">Menú administración</button>
+  <nav class="menu">
+    <button class="active" onclick="mostrarSeccion('blockchain', this)">Blockchain</button>
+    <button onclick="mostrarSeccion('inicio', this)">Inicio</button>
+    <button onclick="mostrarSeccion('crear', this)">Crear Lote</button>
+    <button onclick="mostrarSeccion('evento', this)">Registrar Evento</button>
+    <button onclick="mostrarSeccion('consultar', this)">Consultar</button>
+    <button onclick="mostrarSeccion('todos', this)">Todos los Lotes</button>
+  </nav>
+</aside>
+
+<main class="main">
+
+<header class="topbar">
+  <div>
+    <div class="eyebrow">ADMINISTRACIÓN DE TRAZABILIDAD</div>
+    <h1>LA FAVORITA ORIGINAL</h1>
+    <p class="subtitle">Gestión de lotes mediante blockchain en Sepolia.</p>
+  </div>
+  <div class="status">
+    <span><i class="dot"></i> Sepolia</span>
+  </div>
+</header>
+
+<div class="pouring-container" aria-hidden="true">
+  <img src="7861048615372-1-20.png" class="pouring-bottle" alt="Botella vertiendo aceite" />
+  <div class="oil-thread"></div>
+  <div class="puddle"></div>
+</div>
+
+<section id="blockchain" class="section active">
+<div class="card">
+<div class="section-title"><div><h2>Conexión Blockchain</h2></div></div>
+<div id="wallet" style="margin-bottom:15px; font-size:14px; color:var(--text-soft);">Wallet no conectada</div>
+<button class="btn" id="btnConectar" onclick="conectar()">Conectar MetaMask</button>
+<div id="estadoConexion" class="estado"></div>
+</div>
+</section>
+
+<section id="inicio" class="section">
+<div class="card">
+<div class="section-title"><div><h2>Panel Principal</h2></div></div>
+<div class="dashboard-grid">
+  <div class="metric"><div class="metric-label">TOTAL LOTES</div><div class="metric-value" id="inicioTotal">—</div></div>
+  <div class="metric"><div class="metric-label">RED</div><div class="metric-value" style="font-size:1.5rem">SEPOLIA</div></div>
+  <div class="metric"><div class="metric-label">ESTADO</div><div class="metric-value" style="font-size:1.5rem">ACTIVO</div></div>
+</div>
+</div>
+</section>
+
+<section id="crear" class="section">
+<div class="card">
+<div class="section-title"><div><h2>Crear Lote</h2></div></div>
+<div class="form-grid">
+  <div><label>Código del lote</label><input id="codigo" placeholder="Ej. LOTE-001"></div>
+  <div><label>Productor</label><input id="productor" placeholder="Ej. PRODUCTOR SUR"></div>
+  <div><label>Campo / ubicación</label><input id="campo" placeholder="Ej. FINCA NORTE - ZONA 1"></div>
+  <div><label>Litros</label><input id="litros" type="number" min="1" step="1" placeholder="Ej. 1000"></div>
+</div>
+<button class="btn" onclick="crearLote()">Crear lote en Sepolia</button>
+<div id="estadoCrear" class="estado"></div>
+<hr>
+<button class="btn btn-green" onclick="generarQR()">Generar QR</button>
+<div id="qrcode" style="margin-top:15px;"></div>
+</div>
+</section>
+
+<section id="evento" class="section">
+<div class="card">
+<div class="section-title"><div><h2>Registrar Evento</h2></div></div>
+<label>Código del lote</label><input id="codigoEvento" placeholder="Ej. LOTE-001">
+<label>Etapa / módulo</label>
+<select id="modulo">
+  <option value="EXTRACCION DE ACEITE">Extracción / Recepción</option>
+  <option value="REFINADO">Refinado</option>
+  <option value="ENVASADO">Envasado</option>
+  <option value="DISTRIBUCION">Distribución</option>
+  <option value="VENTA">Venta</option>
+</select>
+<label>Detalle del evento</label><textarea id="detalle" placeholder="Ej. Recepción del lote, control de calidad, despacho, etc."></textarea>
+<button class="btn" onclick="registrarEvento()">Registrar Evento</button>
+<div id="estadoEvento" class="estado"></div>
+</div>
+</section>
+
+<section id="consultar" class="section">
+<div class="card">
+<div class="section-title"><div><h2>Consultar Lote</h2></div></div>
+<label>Código</label><input id="codigoConsulta" placeholder="Ej. LOTE01">
+<button class="btn" onclick="consultarHistorial()">Consultar</button>
+<div id="estadoConsulta" class="estado"></div>
+<div id="resultado"></div>
+</div>
+</section>
+
+<section id="todos" class="section">
+<div class="card">
+<div class="section-title"><div><h2>Todos los Lotes</h2></div></div>
+<button class="btn" onclick="consultarTodosLosLotes()">Consultar Registros</button>
+<div id="estadoTodos" class="estado"></div>
+<div id="todosLosLotesResultado"></div>
+</div>
+</section>
+</main>
+
+<script>
+const contratoDireccion = "0x889eb6D66F1A2081Aa1Bc8daed2bc05229678F39";
+const SEPOLIA_CHAIN_ID = "0xaa36a7";
+const SEPOLIA_CHAIN_ID_DECIMAL = 11155111;
+
+if (!localStorage.getItem('laFavoritaAuth')) {
+  window.location.href = 'login.html';
+}
+
+// ABI mínimo basado en las funciones usadas en la interfaz
+const abi = [
+  "function crearLote(string codigo,string productor,string campo,uint256 litros) external",
+  "function registrarEvento(string codigo,string modulo,string detalle) external",
+  "function consultarLote(string codigo) view returns (string,string,string,uint256,uint256,address,(string,string,address,uint256)[])",
+  "function consultarDatosLote(string codigo) view returns (string,string,string,uint256,uint256,address)",
+  "function consultarEventosDeLote(string codigo) view returns ((string,string,address,uint256)[])",
+  "function obtenerTotalLotes() view returns (uint256)",
+  "function consultarCodigosLotes() view returns (string[])",
+  "function consultarTodosLosLotes() view returns ((string codigo,string productor,string campo,uint256 litros,uint256 fechaCreacion,address creador,(string,string,address,uint256)[])[])",
+  "function existeLote(string codigo) view returns (bool)",
+  "function totalEventos(string codigo) view returns (uint256)"
+];
+
+const MODULOS_TRAZABILIDAD = [
+  "EXTRACCION DE ACEITE",
+  "REFINADO",
+  "ENVASADO",
+  "DISTRIBUCION",
+  "VENTA"
+];
+
+const MODULOS_LABELS = {
+  "EXTRACCION DE ACEITE": "Extracción / Recepción",
+  "REFINADO": "Refinado",
+  "ENVASADO": "Envasado",
+  "DISTRIBUCION": "Distribución",
+  "VENTA": "Venta"
+};
+
+function normalizarModulo(modulo) {
+  const valor = String(modulo || '').trim();
+  if (!valor) return '';
+  const encontrado = MODULOS_TRAZABILIDAD.find(item => item.toLowerCase() === valor.toLowerCase());
+  return encontrado || valor;
+}
+
+function obtenerLabelModulo(modulo) {
+  const valor = normalizarModulo(modulo);
+  return MODULOS_LABELS[valor] || valor || 'Sin etapa';
+}
+
+let provider;
+let signer;
+let contratoConSigner;
+let contratoLectura;
+
+function setConexionEstado(tipo, mensaje) {
+  const estado = document.getElementById("estadoConexion");
+  if (!estado) return;
+  estado.className = "estado " + tipo;
+  estado.textContent = mensaje;
+}
+
+function setCrearEstado(tipo, mensaje) {
+  const estado = document.getElementById("estadoCrear");
+  if (!estado) return;
+  estado.className = "estado " + tipo;
+  estado.textContent = mensaje;
+}
+
+function setEventoEstado(tipo, mensaje) {
+  const estado = document.getElementById("estadoEvento");
+  if (!estado) return;
+  estado.className = "estado " + tipo;
+  estado.textContent = mensaje;
+}
+
+async function asegurarRedSepolia() {
+  if (typeof window.ethereum === 'undefined') throw new Error("MetaMask no detectado");
+  const network = await provider.getNetwork();
+  const chainIdHex = "0x" + network.chainId.toString(16);
+  if (chainIdHex === SEPOLIA_CHAIN_ID) return;
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: SEPOLIA_CHAIN_ID }]
+    });
+  } catch (switchError) {
+    if (switchError.code === 4902) {
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: SEPOLIA_CHAIN_ID,
+          chainName: 'Sepolia Test Network',
+          nativeCurrency: { name: 'SepoliaETH', symbol: 'ETH', decimals: 18 },
+          rpcUrls: ['https://ethereum-sepolia-rpc.publicnode.com', 'https://rpc.sepolia.org'],
+          blockExplorerUrls: ['https://sepolia.etherscan.io']
+        }]
+      });
+    } else {
+      throw switchError;
+    }
+  }
+  // Reinstanciar tras cambio de red
+  provider = new ethers.BrowserProvider(window.ethereum);
+  signer = await provider.getSigner();
+}
+
+function cerrarSesion() {
+  try {
+    if (window.ethereum && window.ethereum.removeListener) {
+      window.ethereum.removeListener('accountsChanged', onAccountsChanged);
+      window.ethereum.removeListener('chainChanged', onChainChanged);
+    }
+  } catch (e) {}
+  localStorage.removeItem('laFavoritaAuth');
+  window.location.href = 'login.html';
+}
+
+async function conectar() {
+  const walletDiv = document.getElementById("wallet");
+  const btn = document.getElementById("btnConectar");
+  if (typeof window.ethereum === 'undefined') {
+    setConexionEstado("error", "MetaMask no detectado. Instala MetaMask para continuar.");
+    return;
+  }
+  try {
+    setConexionEstado("info", "Solicitando conexión a MetaMask...");
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+    await asegurarRedSepolia();
+    contratoConSigner = new ethers.Contract(contratoDireccion, abi, signer);
+    contratoLectura = new ethers.Contract(contratoDireccion, abi, provider);
+    const address = await signer.getAddress();
+    if (walletDiv) walletDiv.textContent = "Conectado: " + address;
+    if (btn) {
+      btn.textContent = "Conectado";
+      btn.disabled = true;
+    }
+    setConexionEstado("exito", "Conectado correctamente a Sepolia.");
+    if (window.ethereum.removeListener) {
+      window.ethereum.removeListener('accountsChanged', onAccountsChanged);
+      window.ethereum.removeListener('chainChanged', onChainChanged);
+    }
+    window.ethereum.on('accountsChanged', onAccountsChanged);
+    window.ethereum.on('chainChanged', onChainChanged);
+  } catch (err) {
+    console.error(err);
+    const msg = err && (err.reason || err.message) ? (err.reason || err.message) : String(err);
+    setConexionEstado("error", "Error al conectar: " + msg);
+  }
+}
+
+function onAccountsChanged() {
+  location.reload();
+}
+
+function onChainChanged() {
+  location.reload();
+}
+
+async function crearLote() {
+  if (!contratoConSigner || !signer) {
+    setCrearEstado("error", "Conecta MetaMask primero.");
+    return;
+  }
+  const codigoEl = document.getElementById("codigo");
+  const productorEl = document.getElementById("productor");
+  const campoEl = document.getElementById("campo");
+  const litrosEl = document.getElementById("litros");
+  const codigo = codigoEl ? codigoEl.value.trim() : "";
+  const productor = productorEl ? productorEl.value.trim() : "";
+  const campo = campoEl ? campoEl.value.trim() : "";
+  const litros = litrosEl ? litrosEl.value.trim() : "";
+
+  if (!codigo || !productor || !campo || !litros) {
+    setCrearEstado("error", "Completa: código, productor, campo y litros.");
+    return;
+  }
+
+  const litrosNumero = Number(litros);
+  if (!Number.isFinite(litrosNumero) || litrosNumero <= 0) {
+    setCrearEstado("error", "Los litros deben ser un número mayor que cero.");
+    return;
+  }
+
+  try {
+    setCrearEstado("info", "Enviando transacción del lote...");
+    const tx = await contratoConSigner.crearLote(codigo, productor, campo, BigInt(litrosNumero));
+    setCrearEstado("info", "Esperando confirmación...");
+    await tx.wait();
+    setCrearEstado("exito", "Lote creado correctamente. Se registró la etapa inicial: EXTRACCION DE ACEITE. Tx: " + tx.hash);
+  } catch (e) {
+    console.error(e);
+    const msg = e && (e.reason || e.message) ? (e.reason || e.message) : String(e);
+    setCrearEstado("error", "Error: " + msg);
+  }
+}
+
+async function registrarEvento() {
+  if (!contratoConSigner || !signer) {
+    setEventoEstado("error", "Conecta MetaMask primero.");
+    return;
+  }
+  const codigoEl = document.getElementById("codigoEvento");
+  const moduloEl = document.getElementById("modulo");
+  const detalleEl = document.getElementById("detalle");
+  const codigo = codigoEl ? codigoEl.value.trim() : "";
+  const modulo = moduloEl ? normalizarModulo(moduloEl.value) : "";
+  const detalle = detalleEl ? detalleEl.value.trim() : "";
+
+  if (!codigo) {
+    setEventoEstado("error", "Ingresa el código del lote.");
+    return;
+  }
+
+  if (!modulo) {
+    setEventoEstado("error", "Selecciona la etapa de la trazabilidad.");
+    return;
+  }
+
+  if (!detalle) {
+    setEventoEstado("error", "Describe la operación realizada en la etapa seleccionada.");
+    return;
+  }
+
+  try {
+    setEventoEstado("info", "Enviando evento de trazabilidad...");
+    const tx = await contratoConSigner.registrarEvento(codigo, modulo, detalle);
+    setEventoEstado("info", "Esperando confirmación...");
+    await tx.wait();
+    setEventoEstado("exito", "Evento registrado correctamente en la etapa " + modulo + ". Tx: " + tx.hash);
+  } catch (e) {
+    console.error(e);
+    const msg = e && (e.reason || e.message) ? (e.reason || e.message) : String(e);
+    setEventoEstado("error", "Error: " + msg);
+  }
+}
+
+async function consultarTodosLosLotes() {
+  const estado = document.getElementById("estadoTodos");
+  const resultado = document.getElementById("todosLosLotesResultado");
+  if (estado) {
+    estado.className = "estado info";
+    estado.textContent = "Consultando...";
+  }
+  if (resultado) resultado.innerHTML = "";
+
+  try {
+    let lectura = contratoLectura;
+    if (!lectura) {
+      if (typeof window.ethereum !== 'undefined') {
+        const p = new ethers.BrowserProvider(window.ethereum);
+        lectura = new ethers.Contract(contratoDireccion, abi, p);
+      } else {
+        lectura = new ethers.Contract(contratoDireccion, abi, new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com"));
+      }
+    }
+
+    // Obtener códigos
+    const codigos = await lectura.consultarCodigosLotes();
+    if (!codigos || codigos.length === 0) {
+      if (estado) {
+        estado.className = "estado info";
+        estado.textContent = "No hay lotes registrados.";
+      }
+      return;
+    }
+
+    let html = "<div class='lote-info'><h3>LOTES REGISTRADOS</h3><p><strong>Total:</strong> " + codigos.length + "</p></div>";
+
+    for (let i = 0; i < codigos.length; i++) {
+      const codigo = codigos[i];
+      try {
+        const res = await lectura.consultarLote(codigo);
+        const loteCodigo = res[0];
+        const productor = res[1];
+        const finca = res[2];
+        const litros = res[3];
+        const fechaCreacion = res[4];
+        const creador = res[5];
+        const eventos = res[6] || [];
+        html += "<div class='lote-card'><h4>" + String(loteCodigo).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</h4>";
+        html += "<p><strong>Productor:</strong> " + String(productor).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</p>";
+        html += "<p><strong>Campo:</strong> " + String(finca).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</p>";
+        html += "<p><strong>Litros:</strong> " + litros.toString() + "</p>";
+        html += "<p><strong>Fecha:</strong> " + new Date(Number(fechaCreacion) * 1000).toLocaleString("es-EC") + "</p>";
+        html += "<p><strong>Creador:</strong> " + String(creador).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</p>";
+        html += "<p><strong>Eventos:</strong> " + eventos.length + "</p></div>";
+      } catch (e) {
+        console.error("Error consultando lote", codigo, e);
+      }
+    }
+
+    if (resultado) resultado.innerHTML = html;
+    if (estado) {
+      estado.className = "estado exito";
+      estado.textContent = "Consulta finalizada.";
+    }
+  } catch (e) {
+    console.error(e);
+    if (estado) {
+      const msg = e && (e.reason || e.message) ? (e.reason || e.message) : String(e);
+      estado.className = "estado error";
+      estado.textContent = "Error: " + msg;
+    }
+  }
+}
+
+async function consultarHistorial() {
+  const estado = document.getElementById("estadoConsulta");
+  const resultado = document.getElementById("resultado");
+  const codigoEl = document.getElementById("codigoConsulta");
+  const codigo = codigoEl ? codigoEl.value.trim() : "";
+  if (!codigo) {
+    if (estado) {
+      estado.className = "estado error";
+      estado.textContent = "Ingresa el código del lote.";
+    }
+    return;
+  }
+  if (estado) {
+    estado.className = "estado info";
+    estado.textContent = "Consultando...";
+  }
+  if (resultado) resultado.innerHTML = "";
+  try {
+    let lectura = contratoLectura;
+    if (!lectura) {
+      if (typeof window.ethereum !== 'undefined') {
+        const p = new ethers.BrowserProvider(window.ethereum);
+        lectura = new ethers.Contract(contratoDireccion, abi, p);
+      } else {
+        lectura = new ethers.Contract(contratoDireccion, abi, new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com"));
+      }
+    }
+    const res = await lectura.consultarLote(codigo);
+    const loteCodigo = res[0];
+    const productor = res[1];
+    const finca = res[2];
+    const litros = res[3];
+    const fechaCreacion = res[4];
+    const creador = res[5];
+    const eventos = res[6] || [];
+    let html = "<div class='lote-info'><h3>DETALLE DEL LOTE</h3>";
+    html += "<p><strong>CÓDIGO:</strong><br>" + String(loteCodigo).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</p>";
+    html += "<p><strong>PRODUCTOR:</strong><br>" + String(productor).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</p>";
+    html += "<p><strong>FINCA / UBICACIÓN:</strong><br>" + String(finca).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</p>";
+    html += "<p><strong>LITROS:</strong><br>" + litros.toString() + "</p>";
+    html += "<p><strong>FECHA DE CREACIÓN:</strong><br>" + new Date(Number(fechaCreacion) * 1000).toLocaleString("es-EC") + "</p>";
+    html += "<p><strong>CREADOR:</strong><br>" + String(creador).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</p></div>";
+    html += "<div class='eventos-title'>Historial de trazabilidad</div><p style='margin-bottom:8px; font-weight:bold;'>Total de eventos: <strong style='color:var(--red)'>" + eventos.length + "</strong></p>";
+    if (eventos.length === 0) {
+      html += "<p class='empty'>No hay eventos registrados.</p>";
+    } else {
+      eventos.forEach((ev, idx) => {
+        html += "<div class='evento'><strong style='font-size:15px; color:var(--red);'>" + (idx + 1) + ". " + String(ev[0]).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "</strong><br><br><strong>DETALLE:</strong><br>" + String(ev[1]).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "<br><br><strong>RESPONSABLE:</strong><br>" + String(ev[2]).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + "<br><br><strong>FECHA:</strong><br>" + new Date(Number(ev[3]) * 1000).toLocaleString("es-EC") + "</div>";
+      });
+    }
+    if (resultado) resultado.innerHTML = html;
+    if (estado) {
+      estado.className = "estado exito";
+      estado.textContent = "Consulta realizada correctamente.";
+    }
+  } catch (e) {
+    console.error(e);
+    if (estado) {
+      const msg = e && (e.reason || e.message) ? (e.reason || e.message) : String(e);
+      estado.className = "estado error";
+      estado.textContent = "No se pudo consultar: " + msg;
+    }
+  }
+}
+
+function generarQR() {
+  const codigoEl = document.getElementById("codigo");
+  const qrcodeDiv = document.getElementById("qrcode");
+  if (!qrcodeDiv) return;
+  qrcodeDiv.innerHTML = "";
+  const codigo = codigoEl ? codigoEl.value.trim() : "";
+  if (!codigo) {
+    alert("Ingresa a código de lote primero.");
+    return;
+  }
+  try {
+    new QRCode(qrcodeDiv, {
+      text: window.location.origin + "/consulta-usuario.html?lote=" + encodeURIComponent(codigo),
+      width: 200,
+      height: 200
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function toggleSidebarMenu() {
+  const sidebar = document.getElementById('adminSidebar');
+  if (!sidebar) return;
+  sidebar.classList.toggle('open');
+}
+
+function mostrarSeccion(id, boton){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+  if(boton) boton.classList.add("active");
+  const sidebar = document.getElementById('adminSidebar');
+  if (window.innerWidth <= 760 && sidebar) {
+    sidebar.classList.remove('open');
+  }
+}
+
+window.addEventListener('resize', () => {
+  const sidebar = document.getElementById('adminSidebar');
+  if (!sidebar) return;
+  if (window.innerWidth > 760) {
+    sidebar.classList.add('open');
+  } else {
+    sidebar.classList.remove('open');
+  }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('adminSidebar');
+  if (sidebar && window.innerWidth <= 760) {
+    sidebar.classList.remove('open');
+  }
+});
+
+function initOilPouring() {
+  const container = document.querySelector('.pouring-container');
+  if (!container) return;
+
+  const puddle = container.querySelector('.puddle');
+  
+  let scale = 1;
+  let growing = true;
+  setInterval(() => {
+    scale += growing ? 0.003 : -0.003;
+    if (scale > 1.15) growing = false;
+    if (scale < 1.0) growing = true;
+    puddle.style.transform = `scale(${scale})`;
+  }, 30);
+
+  setInterval(() => {
+    const drop = document.createElement('div');
+    drop.className = 'splash-drop';
+    
+    const offset = (Math.random() - 0.5) * 30;
+    drop.style.left = `calc(50% + 57px + ${offset}px)`;
+    container.appendChild(drop);
+    
+    let posY = 0;
+    let posX = (Math.random() - 0.5) * 2;
+    let velY = -(Math.random() * 3 + 2);
+    
+    const fall = setInterval(() => {
+      velY += 0.4; 
+      posY += velY;
+      
+      drop.style.transform = `translate(${posX}px, ${posY}px) scale(${1 - posY/80})`;
+      drop.style.opacity = Math.max(0, 1 - (posY / 30));
+      
+      if (posY > 30) {
+        clearInterval(fall);
+        drop.remove();
+      }
+    }, 20);
+  }, 100); 
+}
+
+document.addEventListener('DOMContentLoaded', initOilPouring);
+</script>
+</body>
+</html>
